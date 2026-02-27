@@ -4,8 +4,10 @@ import torchvision.transforms as transforms
 from PIL import Image
 import torch.nn as nn
 import torch.nn.functional as F
+import fastapi as FastAPI
+from pydantic import BaseModel
 
-# 1. The Blueprint (The script needs to know the shape of the brain)
+# Blueprint
 class FocusStateCNN(nn.Module):
     def __init__(self):
         super(FocusStateCNN, self).__init__()
@@ -19,10 +21,10 @@ class FocusStateCNN(nn.Module):
         x = self.fc1(x)
         return x
 
-# 2. Setup Device & Load the Trained Weights
+app = FastAPI.FastAPI()
 device = torch.device("cpu") # Laptops usually run inference just fine on CPU!
 model = FocusStateCNN().to(device)
-model.load_state_dict(torch.load('focus_model (1).pth', map_location=device))
+model.load_state_dict(torch.load('focus_model.pth', map_location=device))
 model.eval() # Turn off learning mode
 
 # 3. Setup the Image Formatter (No augmentation here, just resizing!)
@@ -32,6 +34,9 @@ transform = transforms.Compose([
 ])
 
 classes = ['Distracted', 'Focused']
+
+class ImageData(BaseModel):
+    image_b64: str #frontend sends
 
 # 4. Boot up the Webcam (0 is usually the default built-in laptop camera)
 cap = cv2.VideoCapture(0)
