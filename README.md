@@ -38,3 +38,13 @@ pip install fastapi[standard] torch torchvision pillow
 
 # Run the Uvicorn server
 uvicorn main:app --reload
+
+# Navigate to the frontend directory
+cd app
+
+# Install dependencies
+npm install
+npm install @tailwindcss/postcss
+
+# Start the Vite development server
+npm run dev
