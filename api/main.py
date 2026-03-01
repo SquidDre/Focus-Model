@@ -38,42 +38,6 @@ classes = ['Distracted', 'Focused']
 class ImageData(BaseModel):
     image_b64: str #frontend sends
 
-# 4. Boot up the Webcam (0 is usually the default built-in laptop camera)
-cap = cv2.VideoCapture(0)
-
-print("🎥 Starting live focus tracker... Press 'q' to quit.")
-
-while True:
-    ret, frame = cap.read()
-    if not ret:
-        print("Failed to grab frame.")
-        break
-
-    # OpenCV pulls images in BGR format, but our model learned on standard RGB
-    rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    pil_img = Image.fromarray(rgb_frame)
-
-    # Format for the model: [1, 3, 64, 64]
-    input_tensor = transform(pil_img).unsqueeze(0).to(device)
-
-    # 5. Make the Prediction
-    with torch.no_grad():
-        output = model(input_tensor)
-        _, predicted_index = torch.max(output, 1)
-        status = classes[predicted_index.item()]
-
-    # 6. Draw the prediction on the screen
-    # Green text for Focused, Red text for Distracted
-    color = (0, 255, 0) if status == 'Focused' else (0, 0, 255) 
-    cv2.putText(frame, f"State: {status}", (30, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.2, color, 3)
-
-    # Show the video window
-    cv2.imshow("Live Focus Tracker", frame)
-
-    # Listen for the 'q' key to quit the loop
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
-
-# Clean up
-cap.release()
-cv2.destroyAllWindows()
+@app.post("/predict-focus")
+async def predict_focus(data: ImageData):
+    header, encode = data.image_b64
