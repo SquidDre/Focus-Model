@@ -1,3 +1,4 @@
+# Temporary Read Me
 # 🧠 Deep Work: AI-Powered Focus Tracker
 
 A full-stack "Smart Pomodoro" application that uses a custom **Convolutional Neural Network (CNN)** to monitor user engagement in real-time. If the AI detects the user is distracted or looking away from the screen, it automatically pauses the focus timer and provides immediate visual feedback.
