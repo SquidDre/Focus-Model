@@ -1,3 +1,4 @@
+//App.tsx made with AI code generation for the momemnt just to get the webcam working and connect to the API. The rest of the UI is still being built out, but this is the core functionality!
 import React, { useState, useEffect, useRef } from 'react';
 import Webcam from 'react-webcam';
 import axios from 'axios';
