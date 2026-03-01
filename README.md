@@ -30,6 +30,8 @@ A full-stack "Smart Pomodoro" application that uses a custom **Convolutional Neu
 
 ### 1. Start the AI Server
 ```bash
+cd api
+
 # Activate your Python virtual environment
 source project_env/bin/activate
 
@@ -40,6 +42,7 @@ pip install fastapi[standard] torch torchvision pillow
 uvicorn main:app --reload
 
 # Navigate to the frontend directory
+cd ..
 cd app
 
 # Install dependencies
