@@ -7,6 +7,8 @@ import torch.nn.functional as F
 import fastapi as FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware # Added for React connectivity
+import base64
+import io
 
 # Blueprint
 class FocusStateCNN(nn.Module):
@@ -42,14 +44,19 @@ transform = transforms.Compose([
     transforms.ToTensor()
 ])
 
-classes = ['Distracted', 'Focused']
+classes = ['Focused', 'Distracted'] # Swapped order to match training labels
 
 class ImageData(BaseModel):
     image_b64: str #frontend sends
 
 @app.post("/predict-focus")
 async def predict_focus(data: ImageData):
-    header, encode = data.image_b64
+    if "," in data.image_b64:
+            header, encoded = data.image_b64.split(",", 1)
+    else:
+            encoded = data.image_b64
+
+            
     image_bytes = base64.b64decode(encoded)
     pil_img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
 
