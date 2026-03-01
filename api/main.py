@@ -6,6 +6,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import fastapi as FastAPI
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware # Added for React connectivity
 
 # Blueprint
 class FocusStateCNN(nn.Module):
@@ -22,6 +23,14 @@ class FocusStateCNN(nn.Module):
         return x
 
 app = FastAPI.FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins for simplicity (adjust in production)
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 device = torch.device("cpu") # Laptops usually run inference just fine on CPU!
 model = FocusStateCNN().to(device)
 model.load_state_dict(torch.load('focus_model.pth', map_location=device))
@@ -41,3 +50,15 @@ class ImageData(BaseModel):
 @app.post("/predict-focus")
 async def predict_focus(data: ImageData):
     header, encode = data.image_b64
+    image_bytes = base64.b64decode(encoded)
+    pil_img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+
+    # b. Transform and Predict
+    input_tensor = transform(pil_img).unsqueeze(0).to(device)
+    
+    with torch.no_grad():
+        output = model(input_tensor)
+        _, predicted_index = torch.max(output, 1)
+        status = classes[predicted_index.item()]
+
+    return {"status": status}
